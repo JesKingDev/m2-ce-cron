@@ -1,6 +1,5 @@
 require "<<basedir>>/app/bootstrap.php";
 $thisPid = getmypid();
-print($thisPid);
 if (extension_loaded ("newrelic")) {
     newrelic_name_transaction ("<<name>>");
 }
