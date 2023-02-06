@@ -538,6 +538,8 @@ class Schedule extends AbstractModel
     public function service() {
         #Get the code stub that executes individual crons
         $stub = file_get_contents(__DIR__.'/stub.txt');
+        /* strip whitespace */
+        $stub = preg_replace('/\s\s+/', ' ', $stub);
 
         #Force UTC
         date_default_timezone_set('UTC');
