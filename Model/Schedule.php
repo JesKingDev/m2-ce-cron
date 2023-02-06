@@ -391,7 +391,7 @@ class Schedule extends AbstractModel
         try {
             $this->file->createDirectory(self::VAR_FOLDER_PATH.self::CRON_FOLDER_PATH);
         } catch (FileSystemException $e) {
-            echo "Can't create folder in following path: " . self::VAR_FOLDER_PATH . self::CRON_FOLDER_PATH.PHP_EOL;
+            $this->printError("Can't create folder in following path: " . self::VAR_FOLDER_PATH . self::CRON_FOLDER_PATH.PHP_EOL);
         }
     }
 
@@ -648,6 +648,17 @@ class Schedule extends AbstractModel
                         $this->resource->setMissedJobs($job["job_code"]);
                     }
                 }
+
+                // unset job-specific variables
+                unset($job);
+                unset($runcheck);
+                unset($jobconfig);
+                unset($consumerName);
+                unset($runtime);
+                unset($cmd);
+                unset($exec);
+                unset($execOutput);
+                unset($pid);
             }
 
             #Sanity check processes and look for escaped inmates
@@ -849,6 +860,17 @@ class Schedule extends AbstractModel
     public function isClusterSupportNeeded(): bool
     {
         return $this->clusterSupport > 0;
+    }
+
+    /**
+     * print debug log
+     *
+     * @param string $msg
+     * @return void
+     */
+    private function printDebug(string $msg = '') {
+        $time = date('Y-m-d H:i:s', time());
+        print "[$time] DEBUG $msg" . PHP_EOL;
     }
 
     /**
