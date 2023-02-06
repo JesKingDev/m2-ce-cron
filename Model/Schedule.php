@@ -412,7 +412,7 @@ class Schedule extends AbstractModel
         $this->initialize();
         if ($noPid || !($currentHost && $processRunning)) {
             if ($this->cronenabled == 0) {
-                exit;
+                $this->exit();
             } else {
                 $this->service();
             }
@@ -560,7 +560,7 @@ class Schedule extends AbstractModel
             $this->getRuntimeParameters();
             if ($this->cronenabled == 0) {
                 $this->printWarn("Stopped Cron Service by maintenance is enabled");
-                exit;
+                $this->exit();
             }
 
             #Checking if new jobs need to be scheduled
@@ -803,7 +803,8 @@ class Schedule extends AbstractModel
         $pid = $this->getMyPid();
         $execpid = $this->checkPid(self::CRON_SERVICE_PIDFILE);
         if ($pid != $execpid){
-            exit;
+            // wait for currently running jobs to finish and then exit
+            $this->exit();
         }
     }
 
@@ -993,6 +994,26 @@ class Schedule extends AbstractModel
         }
 
         return true;
+    }
+
+    /**
+     * if asked to exit, ensure any running jobs are completed/handled and not abandoned
+     *
+     * @return void
+     */
+    private function exit()
+    {
+        while(($runningPids = $this->checkRunningJobs()) > 0){
+            $this->printInfo("Cron Shutdown Requested. Waiting for $runningPids jobs to complete.");
+
+            # give the currently running jobs some time to finish
+            sleep(5);
+
+            # check jobs/clean up
+            $this->asylum();
+        }
+
+        exit;
     }
 
 }
