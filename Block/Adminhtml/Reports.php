@@ -56,4 +56,14 @@ class Reports extends Template
         return $this->resourceconfig->getConfigValue('general/locale/timezone', 'default', 0);
     }
 
+    /* If the logged message is in JSON Format, parse the message only */
+    public function getErrorMessage($error){
+        $errorMessage = $error["messages"];
+        $errorJson = json_decode($errorMessage);
+        if (!is_null($errorJson) && isset($errorJson->message)){
+           return $errorJson->message;
+        } else {
+            return $errorMessage;
+        }
+    }
 }
